@@ -1,6 +1,7 @@
 import asyncio
 import os
 import re
+import sys
 from datetime import timedelta
 
 import wrapt
@@ -26,7 +27,7 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
     retry=retry_if_exception_type(Exception),
 )
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
-    print("StructuredTool.ainvoke called")
+    print("StructuredTool.ainvoke called", file=sys.stderr)
     return await wrapped(*args, **kwargs)
 
 def remove_line_padding(text):
@@ -101,7 +102,9 @@ async def main():
                 """
                 In Octopus, get all the projects from the "Easy Mode" space.
                 In Octopus, for each project, get the latest deployment to each environment and its status.
-                If the deployment failed, output the project name, environment name, and deployment status.
+                If the deployment failed, get the task logs.
+                Output the project name, environment name, and deployment status like this:
+                <Project Name> - <Environment Name> - <Task Log Summary>
                 """
             )
         }
