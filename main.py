@@ -35,7 +35,10 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
 )
 @limits(calls=1, period=2)
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
-    print("StructuredTool.ainvoke called", file=sys.stderr)
+    try:
+        print(args[0].name, file=sys.stderr)
+    except:
+        pass
     return await wrapped(*args, **kwargs)
 
 def remove_line_padding(text):
@@ -135,9 +138,10 @@ if __name__ == "__main__":
                 You will be penalized for reporting on deployments that were successful with warnings.
                 You must condense any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
                 Be aggressive with condensing information, and call the condense tools when only the name and ID of resources that were just accessed are required.
-                For example, if you just got the list of spaces, you should condense the list of spaces to free up memory, since only the names and IDs of the spaces are likely to be required later in the conversation.
-                Another example is condensing the list of releases after getting the latest deployment for each environment in a project, since only the release name and ID are likely to be required later in the conversation.
-                Another example is condensing the list of deployments after getting the deployment status, as only the deployment name and ID are likely to be required later in the conversation.
+                Condense the list of spaces after getting the list of spaces to free up memory if only the names and IDs of the spaces are likely to be required later in the conversation.
+                Condense the list of projects after getting the list of projects to free up memory if only the names and IDs of the projects are likely to be required later in the conversation.
+                Condense the list of releases after getting the latest deployment for each environment in a project if only the release name and ID are likely to be required later in the conversation.
+                Condense the list of deployments after getting the deployment status if only the deployment name and ID are likely to be required later in the conversation.
                 """
     )
 
