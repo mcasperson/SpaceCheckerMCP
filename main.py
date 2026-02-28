@@ -131,6 +131,8 @@ if __name__ == "__main__":
                 In Octopus, for each project, get the latest deployment to each environment and its status.
                 If the deployment failed, output the project name, environment name, and deployment status like this:
                 <URL to the deployment> - <Project Name> - <Environment Name>
+                If there are no failed deployments, output "No failed deployments".
+                You will be penalized for providing additional instructions.
                 You will be penalized for reporting on deployments that were successful with warnings.
                 You must discard any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
                 Use the provided tools to discard deployments, projects, releases, spaces, and environments when they are no longer needed.
