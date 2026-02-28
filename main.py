@@ -87,6 +87,7 @@ async def main():
 
     # Use an Azure AI model
     llm = AzureAIChatCompletionsModel(
+        # The URL that ends in /models from the Overview page
         endpoint=os.getenv("AZURE_AI_URL"),
         credential=os.getenv("AZURE_AI_APIKEY"),
         model="gpt-5-mini",
