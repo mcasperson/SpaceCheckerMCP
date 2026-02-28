@@ -36,12 +36,6 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
 )
 @limits(calls=1, period=2)
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
-    try:
-        message = next((arg.content for arg in args[0]["args"]["runtime"].state["messages"] if isinstance(arg, HumanMessage)), None)
-        if message:
-            print(message, file=sys.stderr)
-    except:
-        pass
     return await wrapped(*args, **kwargs)
 
 def remove_line_padding(text):
