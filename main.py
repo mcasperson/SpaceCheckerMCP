@@ -132,7 +132,7 @@ if __name__ == "__main__":
                 If the deployment failed, output the project name, environment name, and deployment status like this:
                 <URL to the deployment> - <Project Name> - <Environment Name>
                 You will be penalized for reporting on deployments that were successful with warnings.
-                You must discard any information about deployments after reporting on them to avoid memory issues. 
+                You must discard any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
                 Use the provided tools to discard deployments, projects, releases, spaces, and environments when they are no longer needed.
                 """
     )
