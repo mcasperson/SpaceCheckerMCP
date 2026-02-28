@@ -53,12 +53,22 @@ docker build -t spacechecker:latest .
 ## Running with Docker
 
 ```bash
+# Run with default message
 docker run --rm \
   -e OCTOPUS_CLI_API_KEY="your-api-key" \
   -e OCTOPUS_CLI_SERVER="https://your-octopus-server.com" \
   -e AZURE_AI_URL="your-azure-ai-url" \
   -e AZURE_AI_APIKEY="your-azure-ai-key" \
   spacechecker:latest
+
+# Run with custom message
+docker run --rm \
+  -e OCTOPUS_CLI_API_KEY="your-api-key" \
+  -e OCTOPUS_CLI_SERVER="https://your-octopus-server.com" \
+  -e AZURE_AI_URL="your-azure-ai-url" \
+  -e AZURE_AI_APIKEY="your-azure-ai-key" \
+  spacechecker:latest \
+  --message "Get all projects in the 'Production' space"
 ```
 
 ## Running with Docker Compose
@@ -106,8 +116,22 @@ pip install -r requirements.txt
 
 3. Set environment variables and run:
 ```bash
+# Run with default message
 python main.py
+
+# Run with custom message
+python main.py --message "Get all projects in the 'Production' space"
+
+# Or use the short form
+python main.py -m "List all environments in Octopus"
+
+# View help
+python main.py --help
 ```
+
+### Command-line Options:
+- `-m, --message MESSAGE`: The message/prompt to send to the agent (optional)
+  - If not provided, uses a default message that checks for failed deployments in the "Easy Mode" space
 
 ## CI/CD
 

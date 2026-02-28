@@ -28,5 +28,6 @@ COPY tools.py .
 ENV PYTHONUNBUFFERED=1
 
 # Run the application
-CMD ["python", "main.py"]
+ENTRYPOINT ["python", "main.py"]
+CMD []
 

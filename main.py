@@ -1,3 +1,4 @@
+import argparse
 import asyncio
 import os
 import re
@@ -9,9 +10,15 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
 from langchain.agents import create_agent
 from purgatory import AsyncCircuitBreakerFactory
-from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
+from ratelimit import limits
+from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type, before_sleep_log
+import logging
 
 from tools import discard_deployments
+
+# Configure logging for retry messages
+logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 circuitbreaker = AsyncCircuitBreakerFactory(default_threshold=3)
 
@@ -23,9 +30,11 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
 @wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
 @retry(
     stop=stop_after_attempt(3),
-    wait=wait_fixed(1),
+    wait=wait_fixed(6),
     retry=retry_if_exception_type(Exception),
+    before_sleep=before_sleep_log(logger, logging.WARNING),
 )
+@limits(calls=1, period=5)
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
     print("StructuredTool.ainvoke called", file=sys.stderr)
     return await wrapped(*args, **kwargs)
@@ -63,9 +72,10 @@ def response_to_text(response):
     return messages.pop().content
 
 
-async def main():
+async def main(message: str):
     """
     The entrypoint to our AI agent.
+    :param message: The message/prompt to send to the agent.
     """
     client = MultiServerMCPClient(
         {
@@ -98,18 +108,28 @@ async def main():
     agent = create_agent(llm, tools)
     response = await agent.ainvoke(
         {
-            "messages": remove_line_padding(
-                """
+            "messages": remove_line_padding(message)
+        }
+    )
+    print(remove_thinking(response_to_text(response)))
+
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="SpaceChecker MCP - Check Octopus Deploy deployment statuses"
+    )
+    parser.add_argument(
+        "-m", "--message",
+        type=str,
+        help="The message/prompt to send to the agent",
+        default="""
                 In Octopus, get all the projects from the "Easy Mode" space.
                 In Octopus, for each project, get the latest deployment to each environment and its status.
                 If the deployment failed, output the project name, environment name, and deployment status like this:
                 <URL to the deployment> - <Project Name> - <Environment Name>
                 You will be penalized for reporting on deployments that were successful with warnings.
                 """
-            )
-        }
     )
-    print(remove_thinking(response_to_text(response)))
 
-
-asyncio.run(main())
+    args = parser.parse_args()
+    asyncio.run(main(args.message))
