@@ -1,21 +1,20 @@
 import argparse
 import asyncio
+import logging
 import os
 import re
 import sys
 from datetime import timedelta
 
 import wrapt
-from langchain_core.messages.human import HumanMessage
-from langchain_mcp_adapters.client import MultiServerMCPClient
-from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
 from langchain.agents import create_agent
+from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
+from langchain_mcp_adapters.client import MultiServerMCPClient
 from purgatory import AsyncCircuitBreakerFactory
 from ratelimit import limits
-from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type, before_sleep_log
-import logging
+from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 
-from tools import discard_deployments, discard_projects, discard_releases, discard_spaces, discard_environments
+from tools import condense_deployments, condense_projects, condense_releases, condense_spaces, condense_environments
 
 # Configure logging for retry messages
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -104,11 +103,11 @@ async def main(message: str):
     )
 
     tools = await client.get_tools()
-    tools.append(discard_deployments)
-    tools.append(discard_projects)
-    tools.append(discard_releases)
-    tools.append(discard_spaces)
-    tools.append(discard_environments)
+    tools.append(condense_deployments)
+    tools.append(condense_projects)
+    tools.append(condense_releases)
+    tools.append(condense_spaces)
+    tools.append(condense_environments)
     agent = create_agent(llm, tools)
     response = await agent.ainvoke(
         {
@@ -134,8 +133,8 @@ if __name__ == "__main__":
                 If there are no failed deployments, output "No failed deployments".
                 You will be penalized for providing additional instructions.
                 You will be penalized for reporting on deployments that were successful with warnings.
-                You must discard any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
-                Use the provided tools to discard deployments, projects, releases, spaces, and environments when they are no longer needed.
+                You must condense any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
+                Be aggressive with condensing information, and call the condense tools when only the name and ID of resources that were just accessed are required.
                 """
     )
 
