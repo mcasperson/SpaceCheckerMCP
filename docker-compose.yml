@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  spacechecker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - OCTOPUS_CLI_API_KEY=${OCTOPUS_CLI_API_KEY}
+      - OCTOPUS_CLI_SERVER=${OCTOPUS_CLI_SERVER}
+      - AZURE_AI_URL=${AZURE_AI_URL}
+      - AZURE_AI_APIKEY=${AZURE_AI_APIKEY}
+
