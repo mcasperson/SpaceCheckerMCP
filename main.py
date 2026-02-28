@@ -6,6 +6,7 @@ import sys
 from datetime import timedelta
 
 import wrapt
+from langchain_core.messages.human import HumanMessage
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
 from langchain.agents import create_agent
@@ -32,11 +33,15 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
     stop=stop_after_attempt(3),
     wait=wait_fixed(3),
     retry=retry_if_exception_type(Exception),
-    before_sleep=before_sleep_log(logger, logging.WARNING),
 )
 @limits(calls=1, period=2)
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
-    print("StructuredTool.ainvoke called", file=sys.stderr)
+    try:
+        message = next((arg.content for arg in args[0]["args"]["runtime"].state["messages"] if isinstance(arg, HumanMessage)), None)
+        if message:
+            print(message, file=sys.stderr)
+    except:
+        pass
     return await wrapped(*args, **kwargs)
 
 def remove_line_padding(text):
