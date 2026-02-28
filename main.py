@@ -36,6 +36,7 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
 )
 @limits(calls=1, period=2)
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
+    print("StructuredTool.ainvoke called", file=sys.stderr)
     return await wrapped(*args, **kwargs)
 
 def remove_line_padding(text):
