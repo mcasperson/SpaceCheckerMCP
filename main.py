@@ -14,7 +14,7 @@ from ratelimit import limits
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type, before_sleep_log
 import logging
 
-from tools import discard_deployments, discard_projects, discard_releases
+from tools import discard_deployments, discard_projects, discard_releases, discard_spaces, discard_environments
 
 # Configure logging for retry messages
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -107,6 +107,8 @@ async def main(message: str):
     tools.append(discard_deployments)
     tools.append(discard_projects)
     tools.append(discard_releases)
+    tools.append(discard_spaces)
+    tools.append(discard_environments)
     agent = create_agent(llm, tools)
     response = await agent.ainvoke(
         {
@@ -127,11 +129,11 @@ if __name__ == "__main__":
         default="""
                 In Octopus, get all the projects from the "Easy Mode" space.
                 In Octopus, for each project, get the latest deployment to each environment and its status.
-                Discarded list of projects.
-                Discarded list of releases.
                 If the deployment failed, output the project name, environment name, and deployment status like this:
                 <URL to the deployment> - <Project Name> - <Environment Name>
                 You will be penalized for reporting on deployments that were successful with warnings.
+                You must discard any information about deployments after reporting on them to avoid memory issues. 
+                Use the provided tools to discard deployments, projects, releases, spaces, and environments when they are no longer needed.
                 """
     )
 
