@@ -103,7 +103,7 @@ async def main():
                 In Octopus, get all the projects from the "Easy Mode" space.
                 In Octopus, for each project, get the latest deployment to each environment and its status.
                 If the deployment failed, output the project name, environment name, and deployment status like this:
-                <URL to the deployment> - <Project Name> - <Environment Name> - <Task Log Summary>
+                <URL to the deployment> - <Project Name> - <Environment Name>
                 You will be penalized for reporting on deployments that were successful with warnings.
                 """
             )
