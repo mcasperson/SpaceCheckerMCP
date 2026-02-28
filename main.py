@@ -136,6 +136,7 @@ if __name__ == "__main__":
                 You must condense any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
                 Be aggressive with condensing information, and call the condense tools when only the name and ID of resources that were just accessed are required.
                 For example, if you just got the list of spaces, you should condense the list of spaces to free up memory, since only the names and IDs of the spaces are likely to be required later in the conversation.
+                Another example is condensing the list of releases after getting the latest deployment for each environment in a project, since only the release name and ID are likely to be required later in the conversation.
                 """
     )
 
