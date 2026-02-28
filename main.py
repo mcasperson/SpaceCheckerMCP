@@ -17,7 +17,6 @@ circuitbreaker = AsyncCircuitBreakerFactory(default_threshold=3)
 @wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
 @circuitbreaker("StructuredTool.ainvoke")
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
-    print("StructuredTool.ainvoke called")
     return await wrapped(*args, **kwargs)
 
 @wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
