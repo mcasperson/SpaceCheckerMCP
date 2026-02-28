@@ -30,11 +30,11 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
 @wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
 @retry(
     stop=stop_after_attempt(3),
-    wait=wait_fixed(6),
+    wait=wait_fixed(3),
     retry=retry_if_exception_type(Exception),
     before_sleep=before_sleep_log(logger, logging.WARNING),
 )
-@limits(calls=1, period=5)
+@limits(calls=1, period=2)
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
     print("StructuredTool.ainvoke called", file=sys.stderr)
     return await wrapped(*args, **kwargs)
