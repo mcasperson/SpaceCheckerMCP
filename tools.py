@@ -135,7 +135,7 @@ def condense_content(state: Annotated[dict, InjectedState], tool_name) -> list:
         if isinstance(release, ToolMessage) and release.name == tool_name:
             release.name = "condensed_" + tool_name
             for content in release.content:
-                content.text = name_and_id_only(content.get("text"))
+                content["text"] = name_and_id_only(content.get("text"))
         return release
 
     return [trim_release(msg) for msg in state["messages"]]
