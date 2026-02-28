@@ -1,11 +1,34 @@
 import asyncio
 import os
 import re
+from datetime import timedelta
 
+import wrapt
 from langchain_mcp_adapters.client import MultiServerMCPClient
 from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
-from langgraph.prebuilt import create_react_agent
+from langchain.agents import create_agent
+from purgatory import AsyncCircuitBreakerFactory
+from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 
+from tools import discard_deployments
+
+circuitbreaker = AsyncCircuitBreakerFactory(default_threshold=3)
+
+@wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
+@circuitbreaker("StructuredTool.ainvoke")
+async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
+    print("StructuredTool.ainvoke called")
+    return await wrapped(*args, **kwargs)
+
+@wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_fixed(1),
+    retry=retry_if_exception_type(Exception),
+)
+async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
+    print("StructuredTool.ainvoke called")
+    return await wrapped(*args, **kwargs)
 
 def remove_line_padding(text):
     """
@@ -57,12 +80,8 @@ async def main():
                     os.getenv("OCTOPUS_CLI_SERVER"),
                 ],
                 "transport": "stdio",
-            },
-            "github": {
-                "url": "https://api.githubcopilot.com/mcp/",
-                "headers": {"Authorization": f"Bearer {os.getenv('GITHUB_PAT')}"},
-                "transport": "streamable_http",
-            },
+                "session_kwargs": {"read_timeout_seconds": timedelta(seconds=60)}
+            }
         }
     )
 
@@ -74,16 +93,15 @@ async def main():
     )
 
     tools = await client.get_tools()
-    agent = create_react_agent(llm, tools)
+    tools.append(discard_deployments)
+    agent = create_agent(llm, tools)
     response = await agent.ainvoke(
         {
             "messages": remove_line_padding(
                 """
-                In Octopus, get all the projects from the "Octopus Copilot" space.
-                In Octopus, for each project, get the latest release.
-                In GitHub, for each release, get the git diff from the GitHub Commit. 
-                Scan the diff and provide a summary-level risk assessment.
-                You will be penalized for asking for user input.
+                In Octopus, get all the projects from the "Easy Mode" space.
+                In Octopus, for each project, get the latest deployment to each environment and its status.
+                If the deployment failed, output the project name, environment name, and deployment status.
                 """
             )
         }
