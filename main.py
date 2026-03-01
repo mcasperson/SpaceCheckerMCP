@@ -47,6 +47,8 @@ In Octopus, get all the projects from the "Easy Mode" space.
 In Octopus, for each project, get the latest deployment to each environment and its status.
 If the deployment failed, output the project name, environment name, and deployment status like this:
 FAILED: <URL to the deployment> - <Project Name> - <Environment Name>
+The deployment url must be in the format "https://instancename.octopus.app/app#/Spaces-#/deployments/Deployments-#"
+Replace "instancename" with the actual instance name, and replace "Spaces-#" and "Deployments-#" with the actual space ID and deployment ID from Octopus.
 If there are no failed deployments, output "No failed deployments in space <Space Name>".
 You will be penalized for providing additional instructions.
 You will be penalized for reporting on deployments that were successful with warnings.
