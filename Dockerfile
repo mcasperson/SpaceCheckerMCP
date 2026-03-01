@@ -22,9 +22,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
 COPY main.py .
-COPY tools/*.py .
-COPY messages/*.py .
-COPY aspects/*.py .
+COPY tools/*.py ./tools
+COPY messages/*.py ./messages
+COPY aspects/*.py ./aspects
 
 # Set environment variables (these should be overridden at runtime)
 ENV PYTHONUNBUFFERED=1
