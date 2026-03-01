@@ -42,8 +42,8 @@ FAILURE TO FOLLOW THE MANDATORY RULES ABOVE WILL RESULT IN SEVERE PENALTIES.
 """
 
 default_message = f"""
-The Octopus instance URL is mattc.octopus.app.
-In Octopus, get all the projects from the "Easy Mode" space.
+The Octopus instance URL is {os.getenv("OCTOPUS_CLI_SERVER")}.
+In Octopus, get all the projects from the "{os.getenv("OCTOPUS_SPACE")}" space.
 In Octopus, for each project, get the latest deployment to each environment and its status.
 If the deployment failed, output the project name, environment name, and deployment status like this:
 FAILED: <URL to the deployment> - <Project Name> - <Environment Name>
