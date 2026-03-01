@@ -52,8 +52,10 @@ Replace "instancename" with the actual instance name, and replace "Spaces-#" and
 If there are no failed deployments, output "No failed deployments in space <Space Name>".
 You will be penalized for providing additional instructions.
 You will be penalized for reporting on deployments that were successful with warnings.
-If "{os.getenv("SLACK_WEBHOOK")}" is not an empty string, post a slack message to the webook "{os.getenv("SLACK_WEBHOOK")}" with the results.
 """
+
+if os.getenv("SLACK_WEBHOOK"):
+    default_message += f'\nPost a slack message to the webook "{os.getenv("SLACK_WEBHOOK")}" with the results.'
 
 # Configure logging for retry messages
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
