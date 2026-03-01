@@ -7,6 +7,7 @@ from langgraph.graph.message import REMOVE_ALL_MESSAGES
 from langgraph.prebuilt import InjectedState
 from langgraph.types import Command
 
+
 @tool
 def condense_tasks(
     tool_call_id: Annotated[str, InjectedToolCallId],
@@ -23,15 +24,26 @@ def condense_tasks(
             return "{}"
         content_json = json.loads(result)
         normalized_dict = {k.casefold(): v for k, v in content_json.items()}
-        return json.dumps({"id": normalized_dict.get("id"), "name": normalized_dict.get("name"), "state": normalized_dict.get("state")})
+        return json.dumps(
+            {
+                "id": normalized_dict.get("id"),
+                "name": normalized_dict.get("name"),
+                "state": normalized_dict.get("state"),
+            }
+        )
 
     def task_name_and_id_only(result):
         if not result:
             return "{}"
         content_json = json.loads(result).get("Task", {})
         normalized_dict = {k.casefold(): v for k, v in content_json.items()}
-        return json.dumps({"id": normalized_dict.get("id"), "name": normalized_dict.get("name"),
-                           "state": normalized_dict.get("state")})
+        return json.dumps(
+            {
+                "id": normalized_dict.get("id"),
+                "name": normalized_dict.get("name"),
+                "state": normalized_dict.get("state"),
+            }
+        )
 
     def trim_release(release):
         if isinstance(release, ToolMessage):
@@ -53,12 +65,11 @@ def condense_tasks(
             "messages": [
                 RemoveMessage(id=REMOVE_ALL_MESSAGES),
                 *trim_messages,
-                ToolMessage(
-                    "Condensed list of tasks", tool_call_id=tool_call_id
-                ),
+                ToolMessage("Condensed list of tasks", tool_call_id=tool_call_id),
             ],
         }
     )
+
 
 @tool
 def condense_deployments(
@@ -71,19 +82,22 @@ def condense_deployments(
     Consider calling this tool after calling list_deployments if the conversation is likely to only require the deployment names and IDs.
     """
 
-    trim_messages = condense_content(state, "list_deployments", additional_keys=["taskId", "projectId", "environmentId"])
+    trim_messages = condense_content(
+        state,
+        "list_deployments",
+        additional_keys=["taskId", "projectId", "environmentId"],
+    )
 
     return Command(
         update={
             "messages": [
                 RemoveMessage(id=REMOVE_ALL_MESSAGES),
                 *trim_messages,
-                ToolMessage(
-                    "Condensed list of deployments", tool_call_id=tool_call_id
-                ),
+                ToolMessage("Condensed list of deployments", tool_call_id=tool_call_id),
             ],
         }
     )
+
 
 @tool
 def condense_releases(
@@ -103,12 +117,11 @@ def condense_releases(
             "messages": [
                 RemoveMessage(id=REMOVE_ALL_MESSAGES),
                 *trim_messages,
-                ToolMessage(
-                    "Condensed list of releases", tool_call_id=tool_call_id
-                ),
+                ToolMessage("Condensed list of releases", tool_call_id=tool_call_id),
             ],
         }
     )
+
 
 @tool
 def condense_projects(
@@ -128,12 +141,11 @@ def condense_projects(
             "messages": [
                 RemoveMessage(id=REMOVE_ALL_MESSAGES),
                 *trim_messages,
-                ToolMessage(
-                    "Condensed list of projects", tool_call_id=tool_call_id
-                ),
+                ToolMessage("Condensed list of projects", tool_call_id=tool_call_id),
             ],
         }
     )
+
 
 @tool
 def condense_spaces(
@@ -153,12 +165,11 @@ def condense_spaces(
             "messages": [
                 RemoveMessage(id=REMOVE_ALL_MESSAGES),
                 *trim_messages,
-                ToolMessage(
-                    "Condensed list of spaces", tool_call_id=tool_call_id
-                ),
+                ToolMessage("Condensed list of spaces", tool_call_id=tool_call_id),
             ],
         }
     )
+
 
 @tool
 def condense_environments(
@@ -185,7 +196,10 @@ def condense_environments(
         }
     )
 
-def condense_content(state: Annotated[dict, InjectedState], tool_name, additional_keys=None) -> list:
+
+def condense_content(
+    state: Annotated[dict, InjectedState], tool_name, additional_keys=None
+) -> list:
     """
     Condense content to include only id, name, and optionally additional specified keys.
 
@@ -201,15 +215,15 @@ def condense_content(state: Annotated[dict, InjectedState], tool_name, additiona
         if not result:
             return "[]"
         content_json = json.loads(result)
-        normalized_items = [{k.casefold(): v for k, v in item.items()} for item in content_json.get("items", [])]
+        normalized_items = [
+            {k.casefold(): v for k, v in item.items()}
+            for item in content_json.get("items", [])
+        ]
 
         # Build condensed dict with id, name, and any additional keys
         condensed_json = []
         for item in normalized_items:
-            condensed_item = {
-                "id": item.get("id"),
-                "name": item.get("name")
-            }
+            condensed_item = {"id": item.get("id"), "name": item.get("name")}
             # Add any additional keys requested
             for key in additional_keys:
                 key_lower = key.casefold()

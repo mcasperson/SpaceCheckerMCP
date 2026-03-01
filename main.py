@@ -13,8 +13,14 @@ from langchain_mcp_adapters.client import MultiServerMCPClient
 
 from messages.messages import remove_thinking, response_to_text, remove_line_padding
 from tools import slack_web_hook
-from tools.octopus_tools import condense_deployments, condense_projects, condense_releases, condense_spaces, condense_environments, \
-    condense_tasks
+from tools.octopus_tools import (
+    condense_deployments,
+    condense_projects,
+    condense_releases,
+    condense_spaces,
+    condense_environments,
+    condense_tasks,
+)
 
 # These instructions are required to manage the size of the context window as part of long-running conversations
 # with multiple tool calls that return large lists of resources.
@@ -58,8 +64,11 @@ if os.getenv("SLACK_WEBHOOK"):
     default_message += f'\nPost a slack message to the webook "{os.getenv("SLACK_WEBHOOK")}" with the results.'
 
 # Configure logging for retry messages
-logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.WARNING, format="%(asctime)s - %(levelname)s - %(message)s"
+)
 logger = logging.getLogger(__name__)
+
 
 async def main(message: str):
     """
@@ -79,7 +88,7 @@ async def main(message: str):
                     os.getenv("OCTOPUS_CLI_SERVER"),
                 ],
                 "transport": "stdio",
-                "session_kwargs": {"read_timeout_seconds": timedelta(seconds=60)}
+                "session_kwargs": {"read_timeout_seconds": timedelta(seconds=60)},
             }
         }
     )
@@ -102,9 +111,7 @@ async def main(message: str):
     tools.append(slack_web_hook)
     agent = create_agent(llm, tools)
     response = await agent.ainvoke(
-        {
-            "messages": remove_line_padding(message + "\n" + additional_instructions)
-        }
+        {"messages": remove_line_padding(message + "\n" + additional_instructions)}
     )
     print(remove_thinking(response_to_text(response)))
 
@@ -114,10 +121,11 @@ if __name__ == "__main__":
         description="SpaceChecker MCP - Check Octopus Deploy deployment statuses"
     )
     parser.add_argument(
-        "-m", "--message",
+        "-m",
+        "--message",
         type=str,
         help="The message/prompt to send to the agent",
-        default=default_message
+        default=default_message,
     )
 
     args = parser.parse_args()

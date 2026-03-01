@@ -37,7 +37,7 @@ async def slack_web_hook(
                     ToolMessage(
                         content=json.dumps({"error": error_message}),
                         tool_call_id=tool_call_id,
-                        name="http_post"
+                        name="http_post",
                     ),
                 ],
             }
@@ -57,24 +57,30 @@ async def slack_web_hook(
                 url,
                 json=body,
                 headers=headers,
-                timeout=aiohttp.ClientTimeout(total=timeout)
+                timeout=aiohttp.ClientTimeout(total=timeout),
             ) as response:
                 response_text = await response.text()
 
                 # Try to parse as JSON, otherwise return as text
                 try:
                     response_data = json.loads(response_text)
-                    response_content = json.dumps({
-                        "status_code": response.status,
-                        "headers": dict(response.headers),
-                        "body": response_data
-                    }, indent=2)
+                    response_content = json.dumps(
+                        {
+                            "status_code": response.status,
+                            "headers": dict(response.headers),
+                            "body": response_data,
+                        },
+                        indent=2,
+                    )
                 except json.JSONDecodeError:
-                    response_content = json.dumps({
-                        "status_code": response.status,
-                        "headers": dict(response.headers),
-                        "body": response_text
-                    }, indent=2)
+                    response_content = json.dumps(
+                        {
+                            "status_code": response.status,
+                            "headers": dict(response.headers),
+                            "body": response_text,
+                        },
+                        indent=2,
+                    )
 
                 success_message = f"HTTP POST request to {url} completed with status {response.status}"
 
@@ -84,7 +90,7 @@ async def slack_web_hook(
                             ToolMessage(
                                 content=response_content,
                                 tool_call_id=tool_call_id,
-                                name="http_post"
+                                name="http_post",
                             ),
                         ],
                     }
@@ -98,7 +104,7 @@ async def slack_web_hook(
                     ToolMessage(
                         content=json.dumps({"error": error_message}),
                         tool_call_id=tool_call_id,
-                        name="http_post"
+                        name="http_post",
                     ),
                 ],
             }
@@ -111,9 +117,8 @@ async def slack_web_hook(
                     ToolMessage(
                         content=json.dumps({"error": error_message}),
                         tool_call_id=tool_call_id,
-                        name="http_post"
+                        name="http_post",
                     ),
                 ],
             }
         )
-

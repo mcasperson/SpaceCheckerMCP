@@ -17,7 +17,7 @@ class TestCondenseContent(unittest.TestCase):
                     "taskId": "task-456",
                     "projectId": "proj-789",
                     "environmentId": "env-101",
-                    "extraField": "should not appear"
+                    "extraField": "should not appear",
                 },
                 {
                     "id": "deploy-124",
@@ -25,8 +25,8 @@ class TestCondenseContent(unittest.TestCase):
                     "taskId": "task-457",
                     "projectId": "proj-790",
                     "environmentId": "env-102",
-                    "extraField": "should not appear"
-                }
+                    "extraField": "should not appear",
+                },
             ]
         }
 
@@ -37,15 +37,15 @@ class TestCondenseContent(unittest.TestCase):
 
         result = json.dumps(self.test_data)
         content_json = json.loads(result)
-        normalized_items = [{k.casefold(): v for k, v in item.items()} for item in content_json.get("items", [])]
+        normalized_items = [
+            {k.casefold(): v for k, v in item.items()}
+            for item in content_json.get("items", [])
+        ]
 
         # Build condensed dict with id, name, and any additional keys
         condensed_json = []
         for item in normalized_items:
-            condensed_item = {
-                "id": item.get("id"),
-                "name": item.get("name")
-            }
+            condensed_item = {"id": item.get("id"), "name": item.get("name")}
             # Add any additional keys requested
             for key in additional_keys:
                 key_lower = key.casefold()
@@ -165,4 +165,3 @@ class TestCondenseContent(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
