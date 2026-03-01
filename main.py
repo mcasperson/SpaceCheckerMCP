@@ -42,7 +42,7 @@ FAILURE TO FOLLOW THE MANDATORY RULES ABOVE WILL RESULT IN SEVERE PENALTIES.
 """
 
 default_message = f"""
-The Octopus instance URL is {os.getenv("OCTOPUS_CLI_SERVER")}.
+The Octopus instance URL is "{os.getenv("OCTOPUS_CLI_SERVER")}".
 In Octopus, get all the projects from the "{os.getenv("OCTOPUS_SPACE")}" space.
 In Octopus, for each project, get the latest deployment to each environment and its status.
 If the deployment failed, output the project name, environment name, and deployment status like this:
@@ -52,7 +52,7 @@ Replace "instancename" with the actual instance name, and replace "Spaces-#" and
 If there are no failed deployments, output "No failed deployments in space <Space Name>".
 You will be penalized for providing additional instructions.
 You will be penalized for reporting on deployments that were successful with warnings.
-Post a slack message to the webook {os.getenv("SLACK_WEBHOOK")} with the results.
+If "{os.getenv("SLACK_WEBHOOK")}" is not an empty string, post a slack message to the webook "{os.getenv("SLACK_WEBHOOK")}" with the results.
 """
 
 # Configure logging for retry messages
