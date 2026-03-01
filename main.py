@@ -4,6 +4,8 @@ import logging
 import os
 from datetime import timedelta
 
+from langchain_mcp_adapters.tools import load_mcp_tools
+
 # Import for side effects - registers patches for StructuredTool.ainvoke
 import aspects.aspects  # noqa: F401
 
@@ -104,19 +106,21 @@ async def main(message: str):
         model=model,
     )
 
-    tools = await client.get_tools()
-    tools.append(condense_deployments)
-    tools.append(condense_projects)
-    tools.append(condense_releases)
-    tools.append(condense_spaces)
-    tools.append(condense_environments)
-    tools.append(condense_tasks)
-    tools.append(slack_web_hook)
-    agent = create_agent(llm, tools)
-    response = await agent.ainvoke(
-        {"messages": remove_line_padding(message + "\n" + additional_instructions)}
-    )
-    print(remove_thinking(response_to_text(response)))
+    async with client.session("octopus") as session:
+        tools = await load_mcp_tools(session)
+
+        tools.append(condense_deployments)
+        tools.append(condense_projects)
+        tools.append(condense_releases)
+        tools.append(condense_spaces)
+        tools.append(condense_environments)
+        tools.append(condense_tasks)
+        tools.append(slack_web_hook)
+        agent = create_agent(llm, tools)
+        response = await agent.ainvoke(
+            {"messages": remove_line_padding(message + "\n" + additional_instructions)}
+        )
+        print(remove_thinking(response_to_text(response)))
 
 
 if __name__ == "__main__":
