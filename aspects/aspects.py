@@ -15,10 +15,10 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
 @wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
 @retry(
     stop=stop_after_attempt(3),
-    wait=wait_fixed(3),
+    wait=wait_fixed(2),
     retry=retry_if_exception_type(Exception),
 )
-@limits(calls=1, period=2)
+@limits(calls=1, period=1)
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
     global counter
     try:
