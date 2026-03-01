@@ -12,7 +12,11 @@ def condense_tasks(
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
 ) -> Command:
-    """Condenses the details of tasks. Call this to free up memory when only the task IDs, Names, and states are required."""
+    """
+    Condenses the details of tasks. Call this to free up memory when only the task IDs, Names, and states are required.
+    Call this to free up memory when only the Task IDs, Names, and states are required.
+    Consider calling this tool after calling get_task_by_id or get_task_details if the conversation is likely to only require the task names, IDs, and states later in the conversation.
+    """
 
     def name_and_id_only(result):
         if not result:
@@ -61,7 +65,11 @@ def condense_deployments(
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
 ) -> Command:
-    """Condenses the list of deployments. Call this to free up memory when only the Deployment IDs, Names, EnvironmentIds, ProjectIds, nd TaskIds are required."""
+    """
+    Condenses the list of deployments. Call this to free up memory when only the Deployment IDs, Names, EnvironmentIds, ProjectIds, nd TaskIds are required.
+    Call this to free up memory when only the Deployment IDs, Names, EnvironmentIds, ProjectIds, nd TaskIds are required.
+    Consider calling this tool after calling list_deployments if the conversation is likely to only require the deployment names and IDs later in the conversation.
+    """
 
     trim_messages = condense_content(state, "list_deployments", additional_keys=["taskId", "projectId", "environmentId"])
 
@@ -82,7 +90,11 @@ def condense_releases(
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
 ) -> Command:
-    """Condenses the list of releases. Call this to free up memory when only the Release IDs and Names are required."""
+    """
+    Condenses the list of releases. Call this to free up memory when only the Release IDs and Names are required.
+    Call this to free up memory when only the Release IDs and Names are required.
+    Consider calling this tool after calling list_releases if the conversation is likely to only require the release names and IDs later in the conversation.
+    """
 
     trim_messages = condense_content(state, "list_releases")
 
@@ -103,7 +115,11 @@ def condense_projects(
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
 ) -> Command:
-    """Condenses the list of environments. Call this to free up memory when only the Project IDs and Names are required."""
+    """
+    Condenses the list of projects. Call this to free up memory when only the Project IDs and Names are required.
+    Call this to free up memory when only the Project IDs and Names are required.
+    Consider calling this tool after calling list_projects if the conversation is likely to only require the project names and IDs later in the conversation.
+    """
 
     trim_messages = condense_content(state, "list_projects")
 
@@ -124,7 +140,11 @@ def condense_spaces(
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
 ) -> Command:
-    """Condenses the list of spaces. Call this to free up memory when only the Space IDs and Names are required."""
+    """
+    Condenses the list of spaces.
+    Call this to free up memory when only the Space IDs and Names are required.
+    Consider calling this tool after calling list_spaces if the conversation is likely to only require the space names and IDs later in the conversation.
+    """
 
     trim_messages = condense_content(state, "list_spaces")
 
@@ -145,7 +165,11 @@ def condense_environments(
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
 ) -> Command:
-    """Condenses the list of environments. Call this to free up memory when only the Environment IDs and Names are required."""
+    """
+    Condenses the list of environments. Call this to free up memory when only the Environment IDs and Names are required.
+    Call this to free up memory when only the Environment IDs and Names are required.
+    Consider calling this tool after calling list_environments if the conversation is likely to only require the environment names and IDs later in the conversation.
+    """
 
     trim_messages = condense_content(state, "list_environments")
 

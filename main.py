@@ -137,7 +137,7 @@ async def main(message: str):
     agent = create_agent(llm, tools)
     response = await agent.ainvoke(
         {
-            "messages": remove_line_padding(message + additional_instructions)
+            "messages": remove_line_padding(message + "\n" + additional_instructions)
         }
     )
     print(remove_thinking(response_to_text(response)))
