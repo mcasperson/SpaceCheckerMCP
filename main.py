@@ -14,7 +14,10 @@ from purgatory import AsyncCircuitBreakerFactory
 from ratelimit import limits
 from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 
-from tools import condense_deployments, condense_projects, condense_releases, condense_spaces, condense_environments
+from tools import condense_deployments, condense_projects, condense_releases, condense_spaces, condense_environments, \
+    condense_tasks
+
+counter = 1
 
 # Configure logging for retry messages
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -35,10 +38,12 @@ async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
 )
 @limits(calls=1, period=2)
 async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
+    global counter
     try:
-        print(args[0].name, file=sys.stderr)
+        print(str(counter) + ". " + args[0].get("name"), file=sys.stderr)
     except:
-        pass
+        print(str(counter) + ". " + "StructuredTool.ainvoke called", file=sys.stderr)
+    counter += 1
     return await wrapped(*args, **kwargs)
 
 def remove_line_padding(text):
@@ -111,6 +116,7 @@ async def main(message: str):
     tools.append(condense_releases)
     tools.append(condense_spaces)
     tools.append(condense_environments)
+    tools.append(condense_tasks)
     agent = create_agent(llm, tools)
     response = await agent.ainvoke(
         {
@@ -138,10 +144,12 @@ if __name__ == "__main__":
                 You will be penalized for reporting on deployments that were successful with warnings.
                 You must condense any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
                 Be aggressive with condensing information, and call the condense tools when only the name and ID of resources that were just accessed are required.
-                Condense the list of spaces after getting the list of spaces to free up memory if only the names and IDs of the spaces are likely to be required later in the conversation.
-                Condense the list of projects after getting the list of projects to free up memory if only the names and IDs of the projects are likely to be required later in the conversation.
-                Condense the list of releases after getting the latest deployment for each environment in a project if only the release name and ID are likely to be required later in the conversation.
-                Condense the list of deployments after getting the deployment status if only the deployment name and ID are likely to be required later in the conversation.
+                You must condense the list of spaces after getting the list of spaces if only the names and IDs of the spaces are likely to be required later in the conversation.
+                You must condense the list of environments after getting the list of environments if only the environment names and IDs are likely to be required later in the conversation.
+                You must condense the list of projects after getting the list of projects if only the project names and IDs are likely to be required later in the conversation.
+                You must condense the list of releases after getting the list of releases if only the release names and IDs are likely to be required later in the conversation.
+                You must condense the list of deployments after getting the list of deployments if only the deployment names and IDs are likely to be required later in the conversation.
+                You must condense the details of tasks after getting a task if only the task name, ID, and state are likely to be required later in the conversation.
                 """
     )
 

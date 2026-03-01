@@ -1,5 +1,4 @@
 import json
-import sys
 from typing import Annotated
 
 from langchain_core.messages import ToolMessage, RemoveMessage
@@ -9,13 +8,45 @@ from langgraph.prebuilt import InjectedState
 from langgraph.types import Command
 
 @tool
+def condense_tasks(
+    tool_call_id: Annotated[str, InjectedToolCallId],
+    state: Annotated[dict, InjectedState],
+) -> Command:
+    """Condenses the details of tasks. Call this to free up memory when only the task IDs, Names, and states are required."""
+
+    def name_and_id_only(result):
+        if not result:
+            return "[]"
+        content_json = json.loads(result)
+        return json.dumps({"id": content_json["id"], "name": content_json["name"], "state": content_json["state"]})
+
+    def trim_release(release):
+        if isinstance(release, ToolMessage) and release.name == "get_task_by_id":
+            release.name = "condensed_get_task_by_id"
+            for content in release.content:
+                content["text"] = name_and_id_only(content.get("text"))
+        return release
+
+    trim_messages = [trim_release(msg) for msg in state["messages"]]
+
+    return Command(
+        update={
+            "messages": [
+                RemoveMessage(id=REMOVE_ALL_MESSAGES),
+                *trim_messages,
+                ToolMessage(
+                    "Condensed list of tasks", tool_call_id=tool_call_id
+                ),
+            ],
+        }
+    )
+
+@tool
 def condense_deployments(
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
 ) -> Command:
     """Condenses the list of deployments. Call this to free up memory when only the Deployment IDs and Names are required."""
-
-    print("condense_deployments called", file=sys.stderr)
 
     trim_messages = condense_content(state, "list_deployments")
 
@@ -38,8 +69,6 @@ def condense_releases(
 ) -> Command:
     """Condenses the list of releases. Call this to free up memory when only the Release IDs and Names are required."""
 
-    print("condense_releases called", file=sys.stderr)
-
     trim_messages = condense_content(state, "list_releases")
 
     return Command(
@@ -60,8 +89,6 @@ def condense_projects(
     state: Annotated[dict, InjectedState],
 ) -> Command:
     """Condenses the list of environments. Call this to free up memory when only the Project IDs and Names are required."""
-
-    print("condense_projects called", file=sys.stderr)
 
     trim_messages = condense_content(state, "list_projects")
 
@@ -84,8 +111,6 @@ def condense_spaces(
 ) -> Command:
     """Condenses the list of spaces. Call this to free up memory when only the Space IDs and Names are required."""
 
-    print("condense_spaces called", file=sys.stderr)
-
     trim_messages = condense_content(state, "list_spaces")
 
     return Command(
@@ -106,8 +131,6 @@ def condense_environments(
     state: Annotated[dict, InjectedState],
 ) -> Command:
     """Condenses the list of environments. Call this to free up memory when only the Environment IDs and Names are required."""
-
-    print("condense_environments called", file=sys.stderr)
 
     trim_messages = condense_content(state, "list_environments")
 
