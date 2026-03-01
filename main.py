@@ -19,18 +19,24 @@ from tools.octopus_tools import condense_deployments, condense_projects, condens
 # These instructions are required to manage the size of the context window as part of long-running conversations
 # with multiple tool calls that return large lists of resources.
 additional_instructions = """
-You must condense any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
-Be aggressive with condensing information, and call the condense tools when only the name and ID of resources that were just accessed are required.
-You must consider running the condense tool after every tool call that returns a resource or list of resources to free up memory, especially if the list is long.
-You will be severely penalized for calling list or get tools (such as list_deployments, list_deployments, or get_task_details) in succession without considering the condense tools. 
-You must strongly consider calling the condense_deployments tool after every call to list_deployments.
-You must strongly consider calling the condense_tasks tool after every call to get_task_details.
-You must condense the list of spaces after getting the list of spaces if only the space names and IDs are likely to be required later in the conversation.
-You must condense the list of environments after getting the list of environments if only the environment names and IDs are likely to be required later in the conversation.
-You must condense the list of projects after getting the list of projects if only the project names and IDs are likely to be required later in the conversation.
-You must condense the list of releases after getting the list of releases if only the release names and IDs are likely to be required later in the conversation.
-You must condense the list of deployments after getting the list of deployments if only the deployment names, IDs, EnvironmentIds, ProjectIds, and TaskIDs are likely to be required later in the conversation.
-You must condense the details of tasks after getting task details if only the task name, ID, and state are likely to be required later in the conversation.
+CRITICAL MEMORY MANAGEMENT RULES - YOU WILL BE SEVERELY PENALIZED FOR NOT FOLLOWING THESE:
+
+1. MANDATORY: You MUST call condense_deployments immediately after EVERY SINGLE call to list_deployments. This is NOT optional.
+2. MANDATORY: You MUST call condense_tasks immediately after EVERY SINGLE call to get_task_details or get_task_by_id. This is NOT optional.
+3. You are FORBIDDEN from calling list_deployments twice in a row without calling condense_deployments in between.
+4. You are FORBIDDEN from calling get_task_details or get_task_by_id twice in a row without calling condense_tasks in between.
+
+The correct pattern is ALWAYS:
+- Call list_deployments → Immediately call condense_deployments → Then continue
+- Call get_task_details → Immediately call condense_tasks → Then continue
+
+Additional condensing rules:
+- Condense spaces after list_spaces if only names and IDs are needed.
+- Condense environments after list_environments if only names and IDs are needed.
+- Condense projects after list_projects if only names and IDs are needed.
+- Condense releases after list_releases if only names and IDs are needed.
+
+FAILURE TO FOLLOW THE MANDATORY RULES ABOVE WILL RESULT IN SEVERE PENALTIES.
 """
 
 default_message = f"""
