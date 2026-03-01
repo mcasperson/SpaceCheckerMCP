@@ -16,16 +16,30 @@ def condense_tasks(
 
     def name_and_id_only(result):
         if not result:
-            return "[]"
+            return "{}"
         content_json = json.loads(result)
         normalized_dict = {k.casefold(): v for k, v in content_json.items()}
         return json.dumps({"id": normalized_dict.get("id"), "name": normalized_dict.get("name"), "state": normalized_dict.get("state")})
 
+    def task_name_and_id_only(result):
+        if not result:
+            return "{}"
+        content_json = json.loads(result).get("Task", {})
+        normalized_dict = {k.casefold(): v for k, v in content_json.items()}
+        return json.dumps({"id": normalized_dict.get("id"), "name": normalized_dict.get("name"),
+                           "state": normalized_dict.get("state")})
+
     def trim_release(release):
-        if isinstance(release, ToolMessage) and release.name == "get_task_by_id":
-            release.name = "condensed_get_task_by_id"
-            for content in release.content:
-                content["text"] = name_and_id_only(content.get("text"))
+        if isinstance(release, ToolMessage):
+            if release.name == "get_task_by_id":
+                release.name = "condensed_get_task_by_id"
+                for content in release.content:
+                    content["text"] = name_and_id_only(content.get("text"))
+
+            if release.name == "get_task_details":
+                release.name = "condensed_get_task_details"
+                for content in release.content:
+                    content["text"] = task_name_and_id_only(content.get("text"))
         return release
 
     trim_messages = [trim_release(msg) for msg in state["messages"]]
