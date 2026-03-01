@@ -7,6 +7,7 @@ A Python application that checks Octopus Deploy deployment statuses using the MC
 - Docker and Docker Compose installed
 - Octopus Deploy API key
 - Azure AI credentials
+- A Slack webhook for notifications
 
 ## Environment Variables
 
@@ -16,6 +17,7 @@ The application requires the following environment variables:
 - `OCTOPUS_CLI_SERVER`: Your Octopus Deploy server URL
 - `AZURE_AI_URL`: Your Azure AI endpoint URL
 - `AZURE_AI_APIKEY`: Your Azure AI API key
+- `SLACK_WEBHOOK`: Your Slack webhook
 
 ## Using Pre-built Images from GHCR
 
@@ -35,6 +37,7 @@ docker run --rm \
   -e OCTOPUS_CLI_SERVER="https://your-octopus-server.com" \
   -e AZURE_AI_URL="your-azure-ai-url" \
   -e AZURE_AI_APIKEY="your-azure-ai-key" \
+  -e SLACK_WEBHOOK="your-slack-webhook" \
   ghcr.io/OWNER/REPOSITORY:latest
 ```
 
@@ -59,6 +62,7 @@ docker run --rm \
   -e OCTOPUS_CLI_SERVER="https://your-octopus-server.com" \
   -e AZURE_AI_URL="your-azure-ai-url" \
   -e AZURE_AI_APIKEY="your-azure-ai-key" \
+  -e SLACK_WEBHOOK="your-slack-webhook" \
   spacechecker:latest
 
 # Run with custom message
@@ -67,6 +71,7 @@ docker run --rm \
   -e OCTOPUS_CLI_SERVER="https://your-octopus-server.com" \
   -e AZURE_AI_URL="your-azure-ai-url" \
   -e AZURE_AI_APIKEY="your-azure-ai-key" \
+  -e SLACK_WEBHOOK="your-slack-webhook" \
   spacechecker:latest \
   --message "Get all projects in the 'Production' space"
 ```
@@ -80,6 +85,7 @@ export OCTOPUS_CLI_API_KEY="your-api-key"
 export OCTOPUS_CLI_SERVER="https://your-octopus-server.com"
 export AZURE_AI_URL="your-azure-ai-url"
 export AZURE_AI_APIKEY="your-azure-ai-key"
+export SLACK_WEBHOOK="your-slack-webhook"
 ```
 
 2. Run the application:
@@ -95,6 +101,7 @@ OCTOPUS_CLI_API_KEY=your-api-key
 OCTOPUS_CLI_SERVER=https://your-octopus-server.com
 AZURE_AI_URL=your-azure-ai-url
 AZURE_AI_APIKEY=your-azure-ai-key
+SLACK_WEBHOOK="your-slack-webhook"
 ```
 
 Then uncomment the `env_file` section in `docker-compose.yml` and run:

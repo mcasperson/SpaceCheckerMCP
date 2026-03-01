@@ -2,19 +2,18 @@ import argparse
 import asyncio
 import logging
 import os
-import re
-import sys
 from datetime import timedelta
 
-import wrapt
+# Import for side effects - registers patches for StructuredTool.ainvoke
+import aspects.aspects  # noqa: F401
+
 from langchain.agents import create_agent
 from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
 from langchain_mcp_adapters.client import MultiServerMCPClient
-from purgatory import AsyncCircuitBreakerFactory
-from ratelimit import limits
-from tenacity import retry, stop_after_attempt, wait_fixed, retry_if_exception_type
 
-from tools import condense_deployments, condense_projects, condense_releases, condense_spaces, condense_environments, \
+from messages.messages import remove_thinking, response_to_text, remove_line_padding
+from tools import http_post
+from tools.octopus_tools import condense_deployments, condense_projects, condense_releases, condense_spaces, condense_environments, \
     condense_tasks
 
 counter = 1
@@ -39,62 +38,6 @@ You must condense the details of tasks after getting task details if only the ta
 # Configure logging for retry messages
 logging.basicConfig(level=logging.WARNING, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
-
-circuitbreaker = AsyncCircuitBreakerFactory(default_threshold=3)
-
-@wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
-@circuitbreaker("StructuredTool.ainvoke")
-async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
-    return await wrapped(*args, **kwargs)
-
-@wrapt.patch_function_wrapper("langchain_core.tools", "StructuredTool.ainvoke")
-@retry(
-    stop=stop_after_attempt(3),
-    wait=wait_fixed(3),
-    retry=retry_if_exception_type(Exception),
-)
-@limits(calls=1, period=2)
-async def structuredtool_ainvoke(wrapped, instance, args, kwargs):
-    global counter
-    try:
-        print(str(counter) + ". " + args[0].get("name"), file=sys.stderr)
-    except:
-        print(str(counter) + ". " + "StructuredTool.ainvoke called", file=sys.stderr)
-    counter += 1
-    return await wrapped(*args, **kwargs)
-
-def remove_line_padding(text):
-    """
-    Remove leading and trailing whitespace from each line in the text.
-    :param text: The text to process.
-    :return: The text with leading and trailing whitespace removed from each line.
-    """
-    return "\n".join(line.strip() for line in text.splitlines() if line.strip())
-
-
-def remove_thinking(text):
-    """
-    Remove <think>...</think> tags and their content from the text.
-    :param text: The text to process.
-    :return: The text with <think>...</think> tags and their content removed.
-    """
-    stripped_text = text.strip()
-    if stripped_text.startswith("<think>") and "</think>" in stripped_text:
-        return re.sub(r"<think>.*?</think>", "", stripped_text, flags=re.DOTALL)
-    return stripped_text
-
-
-def response_to_text(response):
-    """
-    Extract the content from the last message in the response.
-    :param response: The response dictionary containing messages.
-    :return: The content of the last message, or an empty string if no messages are present.
-    """
-    messages = response.get("messages", [])
-    if not messages or len(messages) == 0:
-        return ""
-    return messages.pop().content
-
 
 async def main(message: str):
     """
@@ -134,6 +77,7 @@ async def main(message: str):
     tools.append(condense_spaces)
     tools.append(condense_environments)
     tools.append(condense_tasks)
+    tools.append(http_post)
     agent = create_agent(llm, tools)
     response = await agent.ainvoke(
         {
@@ -151,15 +95,16 @@ if __name__ == "__main__":
         "-m", "--message",
         type=str,
         help="The message/prompt to send to the agent",
-        default="""
+        default=f"""
                 The Octopus instance URL is mattc.octopus.app.
                 In Octopus, get all the projects from the "Easy Mode" space.
                 In Octopus, for each project, get the latest deployment to each environment and its status.
                 If the deployment failed, output the project name, environment name, and deployment status like this:
                 <URL to the deployment> - <Project Name> - <Environment Name>
-                If there are no failed deployments, output "No failed deployments".
+                If there are no failed deployments, output "No failed deployments in space <Space Name>".
                 You will be penalized for providing additional instructions.
                 You will be penalized for reporting on deployments that were successful with warnings.
+                Post a slack message to the webook {os.getenv("SLACK_WEBHOOK")} with the results.
                 """
     )
 
