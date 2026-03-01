@@ -12,7 +12,7 @@ from langchain_azure_ai.chat_models import AzureAIChatCompletionsModel
 from langchain_mcp_adapters.client import MultiServerMCPClient
 
 from messages.messages import remove_thinking, response_to_text, remove_line_padding
-from tools import http_post
+from tools import slack_web_hook
 from tools.octopus_tools import condense_deployments, condense_projects, condense_releases, condense_spaces, condense_environments, \
     condense_tasks
 
@@ -87,7 +87,7 @@ async def main(message: str):
     tools.append(condense_spaces)
     tools.append(condense_environments)
     tools.append(condense_tasks)
-    tools.append(http_post)
+    tools.append(slack_web_hook)
     agent = create_agent(llm, tools)
     response = await agent.ainvoke(
         {

@@ -1,6 +1,6 @@
 """Tools package for SpaceCheckerMCP"""
 
-from .http_tools import http_post
+from .slack_tools import slack_web_hook
 from .octopus_tools import (
     condense_tasks,
     condense_deployments,
@@ -11,7 +11,7 @@ from .octopus_tools import (
 )
 
 __all__ = [
-    "http_post",
+    "slack_web_hook",
     "condense_tasks",
     "condense_deployments",
     "condense_releases",

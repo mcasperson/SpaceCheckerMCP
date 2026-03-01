@@ -9,7 +9,7 @@ from langgraph.types import Command
 
 
 @tool
-async def http_post(
+async def slack_web_hook(
     url: str,
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
@@ -18,9 +18,9 @@ async def http_post(
     timeout: int = 30,
 ) -> Command:
     """
-    Performs a general HTTP POST operation.
+    Performs a slack webhook HTTP POST operation.
 
-    Call this tool to send POST requests to any HTTP endpoint.
+    Call this tool to send POST requests to a Slack webhook URL
 
     :param url: The URL to send the POST request to
     :param body: Optional JSON body to send with the request (as a dictionary)
@@ -28,6 +28,20 @@ async def http_post(
     :param timeout: Request timeout in seconds (default: 30)
     :return: Command with the HTTP response
     """
+
+    if not url.startswith("https://hooks.slack.com"):
+        error_message = f"Invalid Slack webhook URL: {url}. URL must start with 'https://hooks.slack.com'."
+        return Command(
+            update={
+                "messages": [
+                    ToolMessage(
+                        content=json.dumps({"error": error_message}),
+                        tool_call_id=tool_call_id,
+                        name="http_post"
+                    ),
+                ],
+            }
+        )
 
     if body is None:
         body = {}

@@ -1,5 +1,5 @@
-# Use Python 3.14 as the base image
-FROM python:3.14-slim
+# Use Python 3.13 as the base image (3.14+ not compatible with Pydantic V1)
+FROM python:3.13-slim
 
 # Install Node.js (required for npx and @octopusdeploy/mcp-server)
 RUN apt-get update && \
