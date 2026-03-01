@@ -46,7 +46,7 @@ The Octopus instance URL is mattc.octopus.app.
 In Octopus, get all the projects from the "Easy Mode" space.
 In Octopus, for each project, get the latest deployment to each environment and its status.
 If the deployment failed, output the project name, environment name, and deployment status like this:
-<URL to the deployment> - <Project Name> - <Environment Name>
+FAILED: <URL to the deployment> - <Project Name> - <Environment Name>
 If there are no failed deployments, output "No failed deployments in space <Space Name>".
 You will be penalized for providing additional instructions.
 You will be penalized for reporting on deployments that were successful with warnings.
