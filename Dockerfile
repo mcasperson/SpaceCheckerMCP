@@ -22,7 +22,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application files
 COPY main.py .
-COPY tools/octopus_tools.py .
+COPY tools/*.py .
+COPY messages/*.py .
+COPY aspects/*.py .
 
 # Set environment variables (these should be overridden at runtime)
 ENV PYTHONUNBUFFERED=1
