@@ -86,6 +86,7 @@ async def main(message: str):
                     os.getenv("OCTOPUS_CLI_API_KEY"),
                     "--server-url",
                     os.getenv("OCTOPUS_CLI_SERVER"),
+                    "--no-read-only",
                 ],
                 "transport": "stdio",
                 "session_kwargs": {"read_timeout_seconds": timedelta(seconds=60)},
