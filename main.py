@@ -135,6 +135,7 @@ if __name__ == "__main__":
         type=str,
         help="The message/prompt to send to the agent",
         default="""
+                The Octopus instance URL is mattc.octopus.app.
                 In Octopus, get all the projects from the "Easy Mode" space.
                 In Octopus, for each project, get the latest deployment to each environment and its status.
                 If the deployment failed, output the project name, environment name, and deployment status like this:
@@ -144,7 +145,7 @@ if __name__ == "__main__":
                 You will be penalized for reporting on deployments that were successful with warnings.
                 You must condense any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
                 Be aggressive with condensing information, and call the condense tools when only the name and ID of resources that were just accessed are required.
-                You must consider running the condense tool after every tool call that returns a list of resources to free up memory, especially if the list is long.
+                You must consider running the condense tool after every tool call that returns a resource or list of resources to free up memory, especially if the list is long.
                 You will be penalized for calling list tools in succession without considering the condense tools.
                 You must condense the list of spaces after getting the list of spaces if only the space names and IDs are likely to be required later in the conversation.
                 You must condense the list of environments after getting the list of environments if only the environment names and IDs are likely to be required later in the conversation.
