@@ -63,7 +63,7 @@ You will be penalized for reporting on deployments that were successful with war
 """
 
 if os.getenv("SLACK_WEBHOOK"):
-    default_message += f'\nPost a slack message to the webook "{os.getenv("SLACK_WEBHOOK")}" with the results.'
+    default_message += f'\nIf there are failed deployments, post a slack message to the webook "{os.getenv("SLACK_WEBHOOK")}" with the results.'
 
 # Configure logging for retry messages
 logging.basicConfig(
