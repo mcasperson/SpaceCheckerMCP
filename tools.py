@@ -46,9 +46,23 @@ def condense_deployments(
     tool_call_id: Annotated[str, InjectedToolCallId],
     state: Annotated[dict, InjectedState],
 ) -> Command:
-    """Condenses the list of deployments. Call this to free up memory when only the Deployment IDs and Names are required."""
+    """Condenses the list of deployments. Call this to free up memory when only the Deployment IDs, Names, EnvironmentIds, ProjectIds, nd TaskIds are required."""
 
-    trim_messages = condense_content(state, "list_deployments")
+    def name_and_id_only(result):
+        if not result:
+            return "[]"
+        content_json = json.loads(result)
+        condensed_json = list([{"id": item["id"], "name": item["name"], "taskId": item["taskId"], "projectId": item["projectId"], "environmentId": item["environmentId"]} for item in content_json.get("items", [])])
+        return json.dumps(condensed_json)
+
+    def trim_release(release):
+        if isinstance(release, ToolMessage) and release.name == "list_deployments":
+            release.name = "condensed_list_deployments"
+            for content in release.content:
+                content["text"] = name_and_id_only(content.get("text"))
+        return release
+
+    trim_messages = [trim_release(msg) for msg in state["messages"]]
 
     return Command(
         update={

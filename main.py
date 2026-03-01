@@ -144,12 +144,14 @@ if __name__ == "__main__":
                 You will be penalized for reporting on deployments that were successful with warnings.
                 You must condense any information about deployments, projects, releases, spaces, and environments after reporting on them to avoid memory issues. 
                 Be aggressive with condensing information, and call the condense tools when only the name and ID of resources that were just accessed are required.
-                You must condense the list of spaces after getting the list of spaces if only the names and IDs of the spaces are likely to be required later in the conversation.
+                You must consider running the condense tool after every tool call that returns a list of resources to free up memory, especially if the list is long.
+                You will be penalized for calling list tools in succession without considering the condense tools.
+                You must condense the list of spaces after getting the list of spaces if only the space names and IDs are likely to be required later in the conversation.
                 You must condense the list of environments after getting the list of environments if only the environment names and IDs are likely to be required later in the conversation.
                 You must condense the list of projects after getting the list of projects if only the project names and IDs are likely to be required later in the conversation.
                 You must condense the list of releases after getting the list of releases if only the release names and IDs are likely to be required later in the conversation.
-                You must condense the list of deployments after getting the list of deployments if only the deployment names and IDs are likely to be required later in the conversation.
-                You must condense the details of tasks after getting a task if only the task name, ID, and state are likely to be required later in the conversation.
+                You must condense the list of deployments after getting the list of deployments if only the deployment names, IDs, EnvironmentIds, ProjectIds, and TaskIDs are likely to be required later in the conversation.
+                You must condense the details of tasks after getting task details if only the task name, ID, and state are likely to be required later in the conversation.
                 """
     )
 
