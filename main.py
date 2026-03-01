@@ -30,11 +30,13 @@ The correct pattern is ALWAYS:
 - Call list_deployments → Immediately call condense_deployments → Then continue
 - Call get_task_details → Immediately call condense_tasks → Then continue
 
-Additional condensing rules:
-- Condense spaces after list_spaces if only names and IDs are needed.
-- Condense environments after list_environments if only names and IDs are needed.
-- Condense projects after list_projects if only names and IDs are needed.
-- Condense releases after list_releases if only names and IDs are needed.
+ADDITIONAL MANDATORY CONDENSING RULES - YOU MUST FOLLOW THESE:
+5. You MUST call condense_spaces immediately after list_spaces if only space names and IDs are needed. This is STRONGLY REQUIRED.
+6. You MUST call condense_environments immediately after list_environments if only environment names and IDs are needed. This is STRONGLY REQUIRED.
+7. You MUST call condense_projects immediately after list_projects if only project names and IDs are needed. This is STRONGLY REQUIRED.
+8. You MUST call condense_releases immediately after list_releases if only release names and IDs are needed. This is STRONGLY REQUIRED.
+9. IMPORTANT: In most cases, only the names and IDs ARE needed from list operations, so you should ALWAYS strongly consider calling the condense function.
+10. You are FORBIDDEN from calling any list function twice in a row without first calling the corresponding condense function if only names and IDs were needed from the first call.
 
 FAILURE TO FOLLOW THE MANDATORY RULES ABOVE WILL RESULT IN SEVERE PENALTIES.
 """
