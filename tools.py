@@ -18,7 +18,8 @@ def condense_tasks(
         if not result:
             return "[]"
         content_json = json.loads(result)
-        return json.dumps({"id": content_json["id"], "name": content_json["name"], "state": content_json["state"]})
+        normalized_dict = {k.casefold(): v for k, v in content_json.items()}
+        return json.dumps({"id": normalized_dict.get("id"), "name": normalized_dict.get("name"), "state": normalized_dict.get("state")})
 
     def trim_release(release):
         if isinstance(release, ToolMessage) and release.name == "get_task_by_id":
@@ -52,7 +53,8 @@ def condense_deployments(
         if not result:
             return "[]"
         content_json = json.loads(result)
-        condensed_json = list([{"id": item["id"], "name": item["name"], "taskId": item["taskId"], "projectId": item["projectId"], "environmentId": item["environmentId"]} for item in content_json.get("items", [])])
+        normalized_items = [{k.casefold(): v for k, v in item.items()} for item in content_json.get("items", [])]
+        condensed_json = list([{"id": item.get("id"), "name": item.get("name"), "taskId": item.get("taskid"), "projectId": item.get("projectid"), "environmentId": item.get("environmentid")} for item in normalized_items])
         return json.dumps(condensed_json)
 
     def trim_release(release):
@@ -165,7 +167,8 @@ def condense_content(state: Annotated[dict, InjectedState], tool_name) -> list:
         if not result:
             return "[]"
         content_json = json.loads(result)
-        condensed_json = list([{"id": item["id"], "name": item["name"]} for item in content_json.get("items", [])])
+        normalized_items = [{k.casefold(): v for k, v in item.items()} for item in content_json.get("items", [])]
+        condensed_json = list([{"id": item.get("id"), "name": item.get("name")} for item in normalized_items])
         return json.dumps(condensed_json)
 
     def trim_release(release):
